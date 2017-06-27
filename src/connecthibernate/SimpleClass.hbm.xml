@@ -40,5 +40,12 @@ made subject to such option by the copyright holder.
 Contributor(s):
 -->
 <hibernate-mapping>
-  <class dynamic-insert="false" dynamic-update="false" mutable="true" name="connecthibernate.SimpleClass" optimistic-lock="version" polymorphism="implicit" select-before-update="false"/>
+	<class name="connecthibernate.SimpleClass" table="simpleclass">
+		<id name="id">
+			<generator class="assigned"></generator>
+		</id>
+		
+		<property name="name"></property>
+		<property name="value"></property>
+	</class>
 </hibernate-mapping>
