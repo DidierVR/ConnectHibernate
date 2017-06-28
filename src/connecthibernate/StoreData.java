@@ -65,7 +65,18 @@ public class StoreData {
         updateQuery();
         System.out.println("Nieuwe lijst");
         listEntries();
-
+        
+        //System.out.println("Insert query");
+        //insertQuery();
+        System.out.println("Change object");
+        changeObject();
+        
+        System.out.println("Nieuwe lijst");
+        listEntries();
+        
+        selectQuery();
+        
+        
         factory.close();
         System.out.println("Factory closed");
 
@@ -147,11 +158,96 @@ public class StoreData {
             if (tx != null) {
                 tx.rollback();
             }
-            e.printStackTrace();
+            //e.printStackTrace();
+        } finally {
+            System.out.println("Close session");
+            session.close();
+        }
+    }
+    
+    /**
+     * Insert query uitvoeren
+     * 
+     * DVR - 20170628
+     * Hardcoded query -> aanpasbaar maken
+     */
+    public static void insertQuery() {
+        Session session = factory.openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+            SimpleClass sc = new SimpleClass(3,"Maya",15.1);
+            session.save(sc);
+            
+            tx.commit();
+        } catch (HibernateException e) {
+            if (tx != null) {
+                tx.rollback();
+            }
+            //e.printStackTrace();
         } finally {
             System.out.println("Close session");
             session.close();
         }
     }
 
+    /**
+     * Update query uitvoeren door een object te veranderen ipv door een HQL Update query uit te voeren
+     * 
+     * DVR - 20170628
+     * Hardcoded query -> aanpasbaar maken
+     */
+    public static void changeObject() {
+        Session session = factory.openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+            // De volgende lijn leest een object in uit de database: de selectie gebeurt op basis van de Id waarde van
+            // object, in dit geval is Id = 3 (2de parameter in load methode)
+            SimpleClass sc = (SimpleClass)session.load(SimpleClass.class, 3);
+            sc.setName("Ayam");
+            // SESSION SAVE IS NIET NODIG, sc is een persistent object en wijzigingen hieraan worden
+            // automatisch bewaard wanneer de transactei gecommit wordt
+            //session.save(sc);
+            
+            tx.commit();
+        } catch (HibernateException e) {
+            if (tx != null) {
+                tx.rollback();
+            }
+            //e.printStackTrace();
+        } finally {
+            System.out.println("Close session");
+            session.close();
+        }
+    }
+    
+        /**
+     * Select query in HQL
+     *
+     * DVR - 20170628
+     * Bedoeling is om een lijn uit de tabel te kiezen en dan een bepaalde waarde (hier de Id waarde)
+     * uit te lezen. De select query genereert een list als resultaat, daaruit wordt dan het eerste object
+     * gekozen om een waarde te genereren.
+     * -> kan dat efficiënter? 1 enkel object als resultaat, vb. door een soort "TOP 1" selectie?
+     * -> blijkbaar kan dat, met de uniqueResult methode
+     */
+    public static void selectQuery() {
+        Session session = factory.openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+            SimpleClass sc = (SimpleClass)session.createQuery("from SimpleClass where id = 1").uniqueResult();
+            System.out.println("Unique result is: " + sc.getId() + ", " + sc.getName() + ", " + sc.getValue());
+            tx.commit();
+        } catch (HibernateException e) {
+            if (tx != null) {
+                tx.rollback();
+            }
+            //e.printStackTrace();
+        } finally {
+            System.out.println("Close session");
+            session.close();
+        }
+    }
 }
